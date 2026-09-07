@@ -5,6 +5,7 @@
 ## 当前内容
 
 - `docs/agent-learning-roadmap.md`：16 周 Agent 开发学习路线
+- `docs/project-memory.md`：当前进度、约定和跨设备恢复步骤
 - `lessons/phase-2-llm-structured-apps.md`：第二阶段讲义
 - `phase2_exercise.py`：结构化 LLM 输出练习
 - `test_phase2_exercise.py`：练习测试
