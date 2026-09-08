@@ -27,12 +27,12 @@
 
 ```powershell
 .\agent_env\Scripts\Activate.ps1
-$env:LLM_BASE_URL = "https://your-compatible-endpoint/v1"
+$env:LLM_BASE_URL = "https://api.deepseek.com"
 $env:LLM_API_KEY = "replace-me"
-$env:LLM_MODEL = "your-model-name"
+$env:LLM_MODEL = "deepseek-v4-pro"
 ```
 
-项目可以使用任何 OpenAI 兼容接口。没有 API Key 时，先完成下面的 mock 练习，不要把密钥写入代码或 Git。
+项目默认使用 DeepSeek 的 OpenAI 兼容接口，也可以替换为其他兼容供应商。没有 API Key 时，先完成下面的 mock 练习，不要把密钥写入代码或 Git。
 
 ### 练习 A：先定义输出契约
 
@@ -124,18 +124,17 @@ from openai import AsyncOpenAI
 
 client = AsyncOpenAI(
     api_key=os.environ["LLM_API_KEY"],
-    base_url=os.getenv("LLM_BASE_URL"),
+    base_url=os.getenv("LLM_BASE_URL", "https://api.deepseek.com"),
 )
 
 async def call_model(user_prompt: str) -> str:
     response = await client.chat.completions.create(
-        model=os.environ["LLM_MODEL"],
+        model=os.getenv("LLM_MODEL", "deepseek-v4-pro"),
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
         temperature=0,
-        response_format={"type": "json_object"},
         timeout=30,
     )
     return response.choices[0].message.content or ""

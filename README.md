@@ -25,10 +25,12 @@
 .\agent_env\Scripts\python.exe -m pytest -q
 ```
 
-启动第二阶段 API（需要先设置 `LLM_API_KEY`、`LLM_MODEL`，可选 `LLM_BASE_URL`）：
+启动第二阶段 DeepSeek API（需要设置 `LLM_API_KEY`；模型默认是 `deepseek-v4-pro`，可选覆盖 `LLM_MODEL` 和 `LLM_BASE_URL`）：
 
 ```powershell
 .\agent_env\Scripts\python.exe -m phase2.run_api
 ```
+
+DeepSeek 默认地址为 `https://api.deepseek.com`。如果当前模型支持 JSON 模式，可额外设置 `LLM_USE_RESPONSE_FORMAT=true`；默认关闭，仍由 Prompt 和 Pydantic 校验约束输出。
 
 浏览器打开 `http://127.0.0.1:8000/docs` 查看接口文档。真实 API 调用只放在本地环境，测试使用 `FakeModelCaller`。

@@ -43,8 +43,22 @@ async def call_with_retry(
 class OpenAIModelCaller:
     """延迟导入 SDK，保证没有 API Key 时离线测试仍可运行。"""
 
-    def __init__(self, system_prompt: str):
+    def __init__(
+        self,
+        system_prompt: str,
+        *,
+        base_url: str | None = None,
+        model: str | None = None,
+        use_response_format: bool | None = None,
+    ):
         self.system_prompt = system_prompt
+        self.base_url = base_url or os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
+        self.model = model or os.getenv("LLM_MODEL", "deepseek-v4-pro")
+        self.use_response_format = (
+            use_response_format
+            if use_response_format is not None
+            else os.getenv("LLM_USE_RESPONSE_FORMAT", "false").lower() == "true"
+        )
 
     async def __call__(self, prompt: str) -> str:
         try:
@@ -54,16 +68,18 @@ class OpenAIModelCaller:
 
         client = AsyncOpenAI(
             api_key=os.environ["LLM_API_KEY"],
-            base_url=os.getenv("LLM_BASE_URL"),
+            base_url=self.base_url,
         )
-        response = await client.chat.completions.create(
-            model=os.environ["LLM_MODEL"],
-            messages=[
+        request = {
+            "model": self.model,
+            "messages": [
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": prompt},
             ],
-            temperature=0,
-            response_format={"type": "json_object"},
-            timeout=30,
-        )
+            "temperature": 0,
+            "timeout": 30,
+        }
+        if self.use_response_format:
+            request["response_format"] = {"type": "json_object"}
+        response = await client.chat.completions.create(**request)
         return response.choices[0].message.content or ""

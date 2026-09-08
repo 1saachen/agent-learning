@@ -41,7 +41,7 @@
 .\agent_env\Scripts\python.exe -m pytest -q
 ```
 
-真实模型练习使用 OpenAI 兼容 API。只通过环境变量提供 `LLM_BASE_URL`、`LLM_API_KEY` 和 `LLM_MODEL`，不要把密钥写入仓库、日志或记忆文件。
+真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。只通过环境变量提供 `LLM_API_KEY`，不要把密钥写入仓库、日志或记忆文件。
 
 ## 学习约定
 

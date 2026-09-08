@@ -1,7 +1,7 @@
 import asyncio
 import pytest
 
-from phase2.client import FakeModelCaller, ModelCallError, call_with_retry
+from phase2.client import FakeModelCaller, ModelCallError, OpenAIModelCaller, call_with_retry
 
 
 def test_fake_caller_returns_configured_json():
@@ -29,3 +29,10 @@ def test_retry_stops_after_max_attempts():
 
     with pytest.raises(ModelCallError):
         asyncio.run(call_with_retry(failing, "p", max_attempts=2, backoff_seconds=0))
+
+
+def test_deepseek_defaults_match_openai_compatible_api():
+    caller = OpenAIModelCaller("system")
+    assert caller.base_url == "https://api.deepseek.com"
+    assert caller.model == "deepseek-v4-pro"
+    assert caller.use_response_format is False
