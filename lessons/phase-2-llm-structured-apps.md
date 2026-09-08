@@ -272,6 +272,22 @@ async def analyze(request: ResumeRequest):
 
 ## 阶段项目：简历分析助手
 
+### 代码目录
+
+```text
+phase2/
+├── contracts.py   # Pydantic 请求/响应契约
+├── prompts.py     # Prompt 版本和构造
+├── client.py      # Fake/ OpenAI 客户端与有限重试
+├── service.py     # 业务编排和解析诊断
+├── api.py         # FastAPI app factory
+└── run_api.py     # 本地真实 API 启动入口
+tests/
+└── test_phase2_*.py  # 离线测试
+```
+
+运行离线测试：`.\\agent_env\\Scripts\\python.exe -m pytest tests -q`。启动真实 API：`.\\agent_env\\Scripts\\python.exe -m phase2.run_api`。两条命令都应在仓库根目录执行。
+
 ### 最小功能
 
 - 接收简历和职位描述；
