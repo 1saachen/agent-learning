@@ -5,6 +5,7 @@ import os
 from openai import AsyncOpenAI
 import asyncio
 from pydantic import BaseModel, Field, ValidationError
+from phase2.prompts import SYSTEM_PROMPT
 
 
 class ResumeAnalysis(BaseModel):
@@ -45,16 +46,6 @@ client = AsyncOpenAI(
 
 async def call_model(user_prompt: str) -> str:
     """调用 DeepSeek API 获取模型输出。"""
-    SYSTEM_PROMPT = (
-        "你是一个招聘专家，负责分析候选人的简历，并输出结构化的 JSON 数据。"
-        "请严格按照以下 JSON Schema 输出结果："
-        '{"candidate_summary":"string",'
-        '"matched_skills":["string"],'
-        '"missing_skills":["string"],'
-        '"match_score":float,'
-        '"years_of_experience":int,'
-        '"interview_questions":["string"]}'
-    )
     response = await client.chat.completions.create(
         model="deepseek-v4-pro",
         messages=[
