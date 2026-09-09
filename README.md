@@ -11,6 +11,8 @@
 - `test_phase2_exercise.py`：练习测试
 - `phase2/`：第二阶段第 2-5 课的契约、Prompt、模型客户端、服务层和 FastAPI 代码
 - `tests/`：第二阶段离线测试（不访问真实模型）
+- `examples/`：离线 Mock、单次 DeepSeek 调用和批量评估示例
+- `eval_cases.jsonl`：5 条离线评估样例
 
 ## 本地运行
 
@@ -21,8 +23,14 @@
 安装测试依赖后运行：
 
 ```powershell
-.\agent_env\Scripts\python.exe -m pip install pytest
+.\agent_env\Scripts\python.exe -m pip install -r requirements.txt
 .\agent_env\Scripts\python.exe -m pytest -q
+```
+
+先运行不产生 API 费用的完整链路示例：
+
+```powershell
+.\agent_env\Scripts\python.exe -m examples.mock_resume_analysis
 ```
 
 启动第二阶段 DeepSeek API（需要设置 `LLM_API_KEY`；模型默认是 `deepseek-v4-pro`，可选覆盖 `LLM_MODEL` 和 `LLM_BASE_URL`）：
@@ -32,5 +40,23 @@
 ```
 
 DeepSeek 默认地址为 `https://api.deepseek.com`。如果当前模型支持 JSON 模式，可额外设置 `LLM_USE_RESPONSE_FORMAT=true`；默认关闭，仍由 Prompt 和 Pydantic 校验约束输出。
+
+浏览器打开 `http://127.0.0.1:8000/docs` 查看接口文档。真实 API 调用只放在本地环境，测试使用 `FakeModelCaller`。
+
+真实 DeepSeek 单次调用和批量评估：
+
+```powershell
+.\agent_env\Scripts\python.exe -m examples.deepseek_resume_analysis
+.\agent_env\Scripts\python.exe -m examples.evaluate_deepseek
+```
+
+调用接口示例：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/resume/analyze -Method Post -ContentType 'application/json' -Body (@{
+  resume = 'Python backend developer with FastAPI and PostgreSQL experience.'
+  job_description = 'Backend intern who should build Python APIs and learn Docker.'
+} | ConvertTo-Json)
+```
 
 浏览器打开 `http://127.0.0.1:8000/docs` 查看接口文档。真实 API 调用只放在本地环境，测试使用 `FakeModelCaller`。

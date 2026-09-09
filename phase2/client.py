@@ -20,6 +20,24 @@ class FakeModelCaller:
         return self.response
 
 
+def _is_retryable_error(exc: Exception) -> bool:
+    """兼容内置异常和 OpenAI SDK 异常，而不强制离线环境安装 SDK。"""
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return True
+    name = type(exc).__name__.lower()
+    retryable_names = (
+        "timeout",
+        "connection",
+        "ratelimit",
+        "internalserver",
+        "serviceunavailable",
+    )
+    if any(part in name for part in retryable_names):
+        return True
+    status_code = getattr(exc, "status_code", None)
+    return isinstance(status_code, int) and (status_code == 429 or status_code >= 500)
+
+
 async def call_with_retry(
     caller: Callable[[str], Awaitable[str]],
     prompt: str,
@@ -27,16 +45,18 @@ async def call_with_retry(
     max_attempts: int = 3,
     backoff_seconds: float = 0.5,
 ) -> str:
+    if max_attempts < 1:
+        raise ValueError("max_attempts 必须大于 0")
     last_error: Exception | None = None
     for attempt in range(max_attempts):
         try:
             return await caller(prompt)
-        except (TimeoutError, ConnectionError) as exc:
+        except Exception as exc:
+            if not _is_retryable_error(exc):
+                raise ModelCallError("模型调用失败且错误不可重试") from exc
             last_error = exc
             if attempt + 1 < max_attempts:
                 await asyncio.sleep(backoff_seconds * (attempt + 1))
-        except Exception as exc:
-            raise ModelCallError("模型调用失败且错误不可重试") from exc
     raise ModelCallError("模型调用重试次数已耗尽") from last_error
 
 

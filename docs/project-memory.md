@@ -1,6 +1,6 @@
 # Agent 学习项目记忆
 
-> 更新时间：2026-09-07
+> 更新时间：2026-09-09
 
 ## 项目目标
 
@@ -12,7 +12,8 @@
 - 阶段二讲义：已完成 5 节课，见 `lessons/phase-2-llm-structured-apps.md`。
 - 阶段二第 1 课练习：已完成基础版本，见 `phase2_exercise.py`。
 - 阶段二练习测试：见 `test_phase2_exercise.py`。
-- 下一步：学习者扩展 `ResumeAnalysis` 字段并补充失败测试，然后进入真实 API、Prompt 和重试实现。
+- 阶段项目：简历分析助手已实现，代码位于 `phase2/`，示例位于 `examples/`，评估样例位于 `eval_cases.jsonl`。
+- 下一步：先运行 Mock 示例理解完整链路，再配置 DeepSeek Key 运行单次分析和批量评估。
 
 ## 重要文件
 
@@ -25,6 +26,9 @@
 | `main.py` | 现有 FastAPI 与异步处理示例 |
 | `test_fastapi.py` | FastAPI 示例测试 |
 | `test_pydantic.py` | Pydantic 校验示例 |
+| `phase2/evaluation.py` | JSONL 评估样例加载、技能命中率和聚合指标 |
+| `examples/` | Mock、真实 DeepSeek 和批量评估入口 |
+| `eval_cases.jsonl` | 阶段项目评估数据 |
 
 ## 环境与运行
 
@@ -32,6 +36,7 @@
 
 ```powershell
 .\agent_env\Scripts\python.exe phase2_exercise.py
+.\agent_env\Scripts\python.exe -m examples.mock_resume_analysis
 ```
 
 测试依赖可能需要安装：
@@ -41,7 +46,9 @@
 .\agent_env\Scripts\python.exe -m pytest -q
 ```
 
-真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。只通过环境变量提供 `LLM_API_KEY`，不要把密钥写入仓库、日志或记忆文件。
+完整依赖也可以使用：`.\\agent_env\\Scripts\\python.exe -m pip install -r requirements.txt`。
+
+真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。只通过环境变量提供 `LLM_API_KEY`，不要把密钥写入仓库、日志或记忆文件。`.env.example` 只包含占位值。
 
 ## 学习约定
 
@@ -59,7 +66,7 @@ cd agent-learning
 Get-Content docs\project-memory.md
 Get-Content lessons\phase-2-llm-structured-apps.md
 python -m venv agent_env
-.\agent_env\Scripts\python.exe -m pip install fastapi pydantic uvicorn pytest
+.\agent_env\Scripts\python.exe -m pip install -r requirements.txt
 .\agent_env\Scripts\python.exe phase2_exercise.py
 ```
 

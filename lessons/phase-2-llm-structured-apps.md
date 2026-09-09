@@ -271,6 +271,32 @@ async def analyze(request: ResumeRequest):
 
 ## 阶段项目：简历分析助手
 
+### 阶段项目运行顺序
+
+先从不联网的 Mock 开始：
+
+```powershell
+.\\agent_env\\Scripts\\python.exe -m examples.mock_resume_analysis
+```
+
+然后配置 DeepSeek：
+
+```powershell
+$env:LLM_API_KEY = "你的 DeepSeek API Key"
+$env:LLM_MODEL = "deepseek-v4-pro"
+$env:LLM_BASE_URL = "https://api.deepseek.com"
+.\\agent_env\\Scripts\\python.exe -m examples.deepseek_resume_analysis
+```
+
+最后启动 API 并在 `/docs` 中调用，或运行 5 条评估样例：
+
+```powershell
+.\\agent_env\\Scripts\\python.exe -m phase2.run_api
+.\\agent_env\\Scripts\\python.exe -m examples.evaluate_deepseek
+```
+
+评估输出包含总样例数、结构化成功数、失败数、技能命中率和平均匹配分。评估只用于学习和比较，5 条样例不足以代表生产质量。
+
 ### 代码目录
 
 ```text
@@ -279,6 +305,7 @@ phase2/
 ├── prompts.py     # Prompt 版本和构造
 ├── client.py      # Fake/ OpenAI 客户端与有限重试
 ├── service.py     # 业务编排和解析诊断
+├── evaluation.py  # JSONL 评估和技能命中率
 ├── api.py         # FastAPI app factory
 └── run_api.py     # 本地真实 API 启动入口
 tests/
