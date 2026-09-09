@@ -51,4 +51,5 @@ def test_deepseek_defaults_match_openai_compatible_api():
     caller = OpenAIModelCaller("system")
     assert caller.base_url == "https://api.deepseek.com"
     assert caller.model == "deepseek-v4-pro"
+    assert caller.api_key_env == "DEEPSEEK_API_KEY"
     assert caller.use_response_format is False

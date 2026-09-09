@@ -48,7 +48,7 @@
 
 完整依赖也可以使用：`.\\agent_env\\Scripts\\python.exe -m pip install -r requirements.txt`。
 
-真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。只通过环境变量提供 `LLM_API_KEY`，不要把密钥写入仓库、日志或记忆文件。`.env.example` 只包含占位值。
+真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`，并自动读取电脑环境变量 `DEEPSEEK_API_KEY`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。不要把密钥写入仓库、日志或记忆文件。`.env.example` 只包含占位值。
 
 ## 学习约定
 

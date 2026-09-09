@@ -23,14 +23,7 @@
 
 ### 环境准备
 
-在 PowerShell 中执行：
-
-```powershell
-.\agent_env\Scripts\Activate.ps1
-$env:LLM_BASE_URL = "https://api.deepseek.com"
-$env:LLM_API_KEY = "replace-me"
-$env:LLM_MODEL = "deepseek-v4-pro"
-```
+客户端会自动读取电脑环境变量 `DEEPSEEK_API_KEY`，不需要在每次运行前执行 PowerShell 设置命令。DeepSeek OpenAI 兼容接口的默认地址是 `https://api.deepseek.com`，默认模型是 `deepseek-v4-pro`。`LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 仅用于你已经在系统环境变量中配置覆盖值的场景。
 
 项目默认使用 DeepSeek 的 OpenAI 兼容接口，也可以替换为其他兼容供应商。没有 API Key 时，先完成下面的 mock 练习，不要把密钥写入代码或 Git。
 
@@ -123,7 +116,7 @@ import os
 from openai import AsyncOpenAI
 
 client = AsyncOpenAI(
-    api_key=os.environ["LLM_API_KEY"],
+    api_key=os.environ["DEEPSEEK_API_KEY"],
     base_url=os.getenv("LLM_BASE_URL", "https://api.deepseek.com"),
 )
 
@@ -279,12 +272,9 @@ async def analyze(request: ResumeRequest):
 .\\agent_env\\Scripts\\python.exe -m examples.mock_resume_analysis
 ```
 
-然后配置 DeepSeek：
+然后直接运行真实 DeepSeek 示例。程序会读取电脑环境变量 `DEEPSEEK_API_KEY`：
 
 ```powershell
-$env:LLM_API_KEY = "你的 DeepSeek API Key"
-$env:LLM_MODEL = "deepseek-v4-pro"
-$env:LLM_BASE_URL = "https://api.deepseek.com"
 .\\agent_env\\Scripts\\python.exe -m examples.deepseek_resume_analysis
 ```
 

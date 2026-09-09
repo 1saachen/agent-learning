@@ -69,11 +69,13 @@ class OpenAIModelCaller:
         *,
         base_url: str | None = None,
         model: str | None = None,
+        api_key_env: str = "DEEPSEEK_API_KEY",
         use_response_format: bool | None = None,
     ):
         self.system_prompt = system_prompt
         self.base_url = base_url or os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
         self.model = model or os.getenv("LLM_MODEL", "deepseek-v4-pro")
+        self.api_key_env = api_key_env
         self.use_response_format = (
             use_response_format
             if use_response_format is not None
@@ -87,7 +89,7 @@ class OpenAIModelCaller:
             raise ModelCallError("请安装 openai 才能使用真实模型客户端") from exc
 
         client = AsyncOpenAI(
-            api_key=os.environ["LLM_API_KEY"],
+            api_key=os.environ[self.api_key_env],
             base_url=self.base_url,
         )
         request = {
