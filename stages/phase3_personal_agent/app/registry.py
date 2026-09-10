@@ -9,6 +9,7 @@ from pydantic import BaseModel, ValidationError
 
 from .contracts import CreateTodoArgs, GetWeatherArgs, SearchNotesArgs, ToolExecutionResult
 from .tools.notes import DEFAULT_NOTES_DIR, search_notes
+from .tools.base import PublicToolError
 from .tools.todo import DEFAULT_TODO_STORE, create_todo
 from .tools.weather import get_weather
 
@@ -22,6 +23,13 @@ class ToolSpec:
     description: str
     args_model: type[BaseModel]
     handler: ToolHandler
+
+
+@dataclass(frozen=True)
+class PreparedToolCall:
+    spec: ToolSpec
+    args: BaseModel
+    arguments: dict[str, Any]
 
 
 class ToolRegistry:
@@ -48,16 +56,25 @@ class ToolRegistry:
         name: str,
         raw_arguments: str,
     ) -> tuple[ToolExecutionResult, dict[str, Any]]:
+        prepared, error = self.prepare(name, raw_arguments)
+        if error is not None:
+            return error, {}
+        if prepared is None:
+            raise RuntimeError("工具准备状态不一致")
+        return await self.execute_prepared(prepared), prepared.arguments
+
+    def prepare(
+        self,
+        name: str,
+        raw_arguments: str,
+    ) -> tuple[PreparedToolCall | None, ToolExecutionResult | None]:
         spec = self._specs.get(name)
         if spec is None:
-            return (
-                ToolExecutionResult(
-                    ok=False,
-                    tool_name=name,
-                    error_type="unknown_tool",
-                    message="请求的工具不存在",
-                ),
-                {},
+            return None, ToolExecutionResult(
+                ok=False,
+                tool_name=name,
+                error_type="unknown_tool",
+                message="请求的工具不存在",
             )
 
         try:
@@ -66,37 +83,38 @@ class ToolRegistry:
                 raise TypeError("工具参数必须是 JSON 对象")
             args = spec.args_model.model_validate(raw_data)
         except (json.JSONDecodeError, TypeError, ValidationError) as exc:
-            return (
-                ToolExecutionResult(
-                    ok=False,
-                    tool_name=name,
-                    error_type="invalid_arguments",
-                    message=_validation_message(exc),
-                ),
-                {},
+            return None, ToolExecutionResult(
+                ok=False,
+                tool_name=name,
+                error_type="invalid_arguments",
+                message=_validation_message(exc),
             )
 
         validated = args.model_dump(mode="json")
+        return PreparedToolCall(spec=spec, args=args, arguments=validated), None
+
+    async def execute_prepared(self, prepared: PreparedToolCall) -> ToolExecutionResult:
         try:
-            data = await spec.handler(args)
-        except Exception:
-            return (
-                ToolExecutionResult(
-                    ok=False,
-                    tool_name=name,
-                    error_type="tool_execution_error",
-                    message="工具执行失败",
-                ),
-                validated,
+            data = await prepared.spec.handler(prepared.args)
+        except PublicToolError as exc:
+            return ToolExecutionResult(
+                ok=False,
+                tool_name=prepared.spec.name,
+                error_type="tool_execution_error",
+                message=str(exc),
             )
-        return (
-            ToolExecutionResult(
-                ok=True,
-                tool_name=name,
-                data=data,
-                message="工具执行成功",
-            ),
-            validated,
+        except Exception:
+            return ToolExecutionResult(
+                ok=False,
+                tool_name=prepared.spec.name,
+                error_type="tool_execution_error",
+                message="工具执行失败",
+            )
+        return ToolExecutionResult(
+            ok=True,
+            tool_name=prepared.spec.name,
+            data=data,
+            message=_success_message(prepared.spec.name, data),
         )
 
 
@@ -107,6 +125,27 @@ def _validation_message(exc: Exception) -> str:
         )
         return f"工具参数校验失败：{', '.join(fields)}"
     return "工具参数必须是合法的 JSON 对象"
+
+
+def _success_message(
+    tool_name: str,
+    data: dict[str, object] | list[dict[str, object]],
+) -> str:
+    if tool_name == "get_weather" and isinstance(data, dict):
+        return (
+            f"天气：{data.get('location', '未知地点')}，"
+            f"{data.get('temperature_c', '未知')} 摄氏度，"
+            f"{data.get('weather', '未知天气')}"
+        )[:300]
+    if tool_name == "create_todo" and isinstance(data, dict):
+        return (
+            f"待办：{data.get('title', '未命名')}，"
+            f"ID={data.get('id', '未知')}"
+        )[:300]
+    if tool_name == "search_notes" and isinstance(data, list):
+        paths = [str(item.get("path", "")) for item in data[:5]]
+        return f"笔记命中 {len(data)} 条：{', '.join(paths) or '无'}"[:300]
+    return "工具执行成功"
 
 
 def build_default_registry(

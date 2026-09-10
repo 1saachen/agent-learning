@@ -8,6 +8,7 @@ from stages.phase3_personal_agent.app.registry import (
     ToolSpec,
     build_default_registry,
 )
+from stages.phase3_personal_agent.app.tools.base import PublicToolError
 
 
 def test_registry_validates_arguments_before_execution():
@@ -74,6 +75,10 @@ async def _explode(args: ExplodingArgs):
     raise RuntimeError(f"secret details: {args.value}")
 
 
+async def _public_failure(args: ExplodingArgs):
+    raise PublicToolError(f"可公开错误：{args.value}")
+
+
 def test_registry_converts_handler_exception_to_safe_result():
     registry = ToolRegistry(
         [ToolSpec("explode", "Always fails", ExplodingArgs, _explode)]
@@ -85,3 +90,14 @@ def test_registry_converts_handler_exception_to_safe_result():
     assert result.message == "工具执行失败"
     assert "secret details" not in result.model_dump_json()
     assert validated == {"value": 1}
+
+
+def test_registry_preserves_public_tool_error_message():
+    registry = ToolRegistry(
+        [ToolSpec("public_failure", "Fails safely", ExplodingArgs, _public_failure)]
+    )
+
+    result, _ = asyncio.run(registry.execute("public_failure", '{"value":2}'))
+
+    assert result.error_type == "tool_execution_error"
+    assert result.message == "可公开错误：2"

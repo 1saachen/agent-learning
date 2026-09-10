@@ -45,3 +45,8 @@ def test_create_todo_normalizes_text_and_date():
     assert args.title == "出门带外套"
     assert args.due_date == date(2026, 9, 11)
     assert args.priority == "high"
+
+
+def test_tool_arguments_reject_unknown_fields():
+    with pytest.raises(ValidationError, match="nonce"):
+        CreateTodoArgs(title="复习", nonce=1)

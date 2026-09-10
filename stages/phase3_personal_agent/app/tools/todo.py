@@ -5,12 +5,13 @@ from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 from ..contracts import CreateTodoArgs
+from .base import PublicToolError
 
 
 DEFAULT_TODO_STORE = Path(__file__).resolve().parents[2] / "data" / "todos.json"
 
 
-class TodoStoreError(RuntimeError):
+class TodoStoreError(PublicToolError):
     """待办文件不能被安全读取或写入。"""
 
 

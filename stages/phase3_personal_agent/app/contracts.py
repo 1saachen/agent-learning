@@ -1,10 +1,12 @@
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class _TrimmedTextModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     @field_validator("*", mode="before")
     @classmethod
     def trim_text_fields(cls, value: Any) -> Any:

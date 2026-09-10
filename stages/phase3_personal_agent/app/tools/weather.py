@@ -3,6 +3,7 @@ from typing import Any
 import httpx
 
 from ..contracts import GetWeatherArgs
+from .base import PublicToolError
 
 
 GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
@@ -31,7 +32,7 @@ WMO_WEATHER = {
 }
 
 
-class WeatherToolError(RuntimeError):
+class WeatherToolError(PublicToolError):
     """天气服务无法返回可用结果。"""
 
 

@@ -57,22 +57,30 @@ class AgentRunner:
                 )
 
             for call in decision.tool_calls:
-                signature, parsed_arguments = _call_signature(call)
                 started = perf_counter()
-                if signature in seen_calls:
+                prepared, validation_error = self.registry.prepare(
+                    call.name,
+                    call.arguments,
+                )
+                if validation_error is not None:
+                    result = validation_error
+                    validated_arguments = {}
+                elif prepared is None:
+                    raise RuntimeError("工具准备状态不一致")
+                else:
+                    validated_arguments = prepared.arguments
+                    signature = _validated_call_signature(call.name, validated_arguments)
+
+                if validation_error is None and signature in seen_calls:
                     result = ToolExecutionResult(
                         ok=False,
                         tool_name=call.name,
                         error_type="duplicate_tool_call",
                         message="相同工具和参数已经调用过，本次未重复执行",
                     )
-                    validated_arguments = parsed_arguments
-                else:
+                elif validation_error is None:
                     seen_calls.add(signature)
-                    result, validated_arguments = await self.registry.execute(
-                        call.name,
-                        call.arguments,
-                    )
+                    result = await self.registry.execute_prepared(prepared)
                 duration_ms = (perf_counter() - started) * 1000
                 summary = result.message if result.ok else (result.error_type or result.message)
                 trace.append(
@@ -123,12 +131,14 @@ def _assistant_message(decision: AssistantDecision) -> dict[str, Any]:
     return message
 
 
-def _call_signature(call: ToolCall) -> tuple[tuple[str, str], dict[str, Any]]:
-    try:
-        parsed = json.loads(call.arguments)
-    except (json.JSONDecodeError, TypeError):
-        return (call.name, call.arguments), {}
-    if not isinstance(parsed, dict):
-        return (call.name, json.dumps(parsed, ensure_ascii=False, sort_keys=True)), {}
-    canonical = json.dumps(parsed, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return (call.name, canonical), parsed
+def _validated_call_signature(
+    tool_name: str,
+    arguments: dict[str, Any],
+) -> tuple[str, str]:
+    canonical = json.dumps(
+        arguments,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return tool_name, canonical

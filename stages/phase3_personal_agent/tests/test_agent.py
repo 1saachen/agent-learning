@@ -137,6 +137,49 @@ def test_agent_blocks_duplicate_tool_call_before_side_effect():
     assert result.trace[1].summary == "duplicate_tool_call"
 
 
+def test_agent_detects_duplicate_after_pydantic_normalization():
+    executions = []
+    model = SequenceModel(
+        [
+            AssistantDecision(
+                tool_calls=[ToolCall(id="call-1", name="create_todo", arguments='{"title":"带外套"}')]
+            ),
+            AssistantDecision(
+                tool_calls=[
+                    ToolCall(
+                        id="call-2",
+                        name="create_todo",
+                        arguments='{"title":"  带外套  ","priority":"medium","due_date":null}',
+                    )
+                ]
+            ),
+            AssistantDecision(content="待办只创建了一次。"),
+        ]
+    )
+
+    result = asyncio.run(AgentRunner(model, _registry(executions)).run("创建待办"))
+
+    assert executions == [("create_todo", "带外套")]
+    assert result.trace[1].summary == "duplicate_tool_call"
+
+
+def test_successful_trace_contains_bounded_result_summary():
+    model = SequenceModel(
+        [
+            AssistantDecision(
+                tool_calls=[ToolCall(id="weather", name="get_weather", arguments='{"city":"上海"}')]
+            ),
+            AssistantDecision(content="查询完成。"),
+        ]
+    )
+
+    result = asyncio.run(AgentRunner(model, _registry([])).run("查询天气"))
+
+    assert "18.2" in result.trace[0].summary
+    assert "上海" in result.trace[0].summary
+    assert len(result.trace[0].summary) <= 300
+
+
 def test_agent_stops_at_max_steps():
     model = SequenceModel(
         [
