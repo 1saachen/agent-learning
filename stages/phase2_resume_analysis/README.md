@@ -17,6 +17,11 @@ phase2_resume_analysis/
 └── docs/              # 阶段设计和实现计划
 ```
 
+## 学习资料
+
+- `lesson.md`：按课程顺序学习第二阶段。
+- `docs/phase2-core-knowledge-guide.md`：结合当前项目系统掌握 LLM、Prompt 与结构化输出，并用于自测和面试复习。
+
 ## 安装与测试
 
 ```powershell

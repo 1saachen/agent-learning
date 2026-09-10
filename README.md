@@ -7,6 +7,7 @@
 - `docs/agent-learning-roadmap.md`：16 周 Agent 开发学习路线
 - `docs/project-memory.md`：当前进度、约定和跨设备恢复步骤
 - `stages/phase2_resume_analysis/`：第二阶段简历分析助手的讲义、代码、练习、测试和评估数据
+- `stages/phase2_resume_analysis/docs/phase2-core-knowledge-guide.md`：LLM、Prompt 与结构化输出核心知识手册
 
 ## 本地运行
 

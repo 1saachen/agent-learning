@@ -1,6 +1,6 @@
 # Agent 学习项目记忆
 
-> 更新时间：2026-09-09
+> 更新时间：2026-09-10
 
 ## 项目目标
 
@@ -11,8 +11,10 @@
 - 阶段一基础工程：已有 FastAPI、异步和 Pydantic 示例。
 - 阶段二全部内容已集中到 `stages/phase2_resume_analysis/`。
 - 阶段二讲义：`stages/phase2_resume_analysis/lesson.md`。
+- 阶段二核心知识手册：`stages/phase2_resume_analysis/docs/phase2-core-knowledge-guide.md`。
 - 阶段项目代码、示例、练习、测试和评估数据均位于该阶段目录下。
-- 下一步：先运行 Mock 示例理解完整链路，再配置 DeepSeek Key 运行单次分析和批量评估。
+- 已跑通 DeepSeek 简历分析项目，并完成项目代码的基础阅读和理解。
+- 下一步：对照核心知识手册完成掌握度检查表，并至少完成两个进阶实验，再进入阶段三。
 
 ## 重要文件
 
@@ -20,6 +22,7 @@
 | --- | --- |
 | `docs/agent-learning-roadmap.md` | 16 周总路线、阶段验收和求职准备 |
 | `stages/phase2_resume_analysis/lesson.md` | 第二阶段完整讲义 |
+| `stages/phase2_resume_analysis/docs/phase2-core-knowledge-guide.md` | LLM、Prompt 与结构化输出核心知识手册 |
 | `stages/phase2_resume_analysis/app/` | 简历分析应用代码 |
 | `stages/phase2_resume_analysis/exercises/` | 第一课练习和测试 |
 | `main.py` | 现有 FastAPI 与异步处理示例 |
@@ -64,6 +67,7 @@ git clone https://github.com/1saachen/agent-learning.git
 cd agent-learning
 Get-Content docs\project-memory.md
 Get-Content stages\phase2_resume_analysis\lesson.md
+Get-Content stages\phase2_resume_analysis\docs\phase2-core-knowledge-guide.md
 python -m venv agent_env
 .\agent_env\Scripts\python.exe -m pip install -r stages\phase2_resume_analysis\requirements.txt
 .\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.exercises.phase2_exercise
