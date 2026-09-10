@@ -8,6 +8,8 @@
 - `docs/project-memory.md`：当前进度、约定和跨设备恢复步骤
 - `stages/phase2_resume_analysis/`：第二阶段简历分析助手的讲义、代码、练习、测试和评估数据
 - `stages/phase2_resume_analysis/docs/phase2-core-knowledge-guide.md`：LLM、Prompt 与结构化输出核心知识手册
+- `stages/phase3_personal_agent/`：第三阶段 DeepSeek Tool Calling 个人研究助手
+- `stages/phase3_personal_agent/docs/phase3-core-knowledge-guide.md`：工具、Agent 循环、安全与评估手册
 
 ## 本地运行
 
@@ -54,3 +56,20 @@ Invoke-RestMethod http://127.0.0.1:8000/resume/analyze -Method Post -ContentType
 ```
 
 浏览器打开 `http://127.0.0.1:8000/docs` 查看接口文档。真实 API 调用只放在本地环境，测试使用 `FakeModelCaller`。
+
+## 第三阶段
+
+安装依赖并运行真实 DeepSeek Agent：
+
+```powershell
+.\agent_env\Scripts\python.exe -m pip install -r stages\phase3_personal_agent\requirements.txt
+.\agent_env\Scripts\python.exe -m stages.phase3_personal_agent.examples.run_agent
+```
+
+单次运行多步条件任务：
+
+```powershell
+.\agent_env\Scripts\python.exe -m stages.phase3_personal_agent.examples.run_agent --prompt "查询上海当前天气。如果温度低于 20 摄氏度，创建一个标题为‘出门带外套’的高优先级待办；否则只告诉我天气。"
+```
+
+第三阶段同样读取电脑环境变量 `DEEPSEEK_API_KEY`，默认模型和地址保持为 `deepseek-v4-pro` 与 `https://api.deepseek.com`。天气来自无需 Key 的 Open-Meteo；创建的待办保存在本地 `stages/phase3_personal_agent/data/todos.json`，该运行数据不提交到 Git。

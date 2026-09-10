@@ -14,7 +14,9 @@
 - 阶段二核心知识手册：`stages/phase2_resume_analysis/docs/phase2-core-knowledge-guide.md`。
 - 阶段项目代码、示例、练习、测试和评估数据均位于该阶段目录下。
 - 已跑通 DeepSeek 简历分析项目，并完成项目代码的基础阅读和理解。
-- 下一步：对照核心知识手册完成掌握度检查表，并至少完成两个进阶实验，再进入阶段三。
+- 阶段三个人研究助手位于 `stages/phase3_personal_agent/`，使用原生 DeepSeek Tool Calling。
+- 阶段三已实现本地笔记搜索、本地待办写入、Open-Meteo 实时天气、工具参数校验、重复调用保护、最多 5 步的 Agent 循环和 trace。
+- 下一步：运行真实单工具与多步条件任务，按 `lesson.md` 阅读代码，再完成核心知识手册中的练习和验收。
 
 ## 重要文件
 
@@ -31,6 +33,11 @@
 | `stages/phase2_resume_analysis/app/evaluation.py` | JSONL 评估样例加载、技能命中率和聚合指标 |
 | `stages/phase2_resume_analysis/examples/` | Mock、真实 DeepSeek 和批量评估入口 |
 | `stages/phase2_resume_analysis/data/eval_cases.jsonl` | 阶段项目评估数据 |
+| `stages/phase3_personal_agent/README.md` | 第三阶段安装、运行和目录说明 |
+| `stages/phase3_personal_agent/lesson.md` | 第三阶段按代码顺序学习的讲义 |
+| `stages/phase3_personal_agent/docs/phase3-core-knowledge-guide.md` | Tool Calling、Agent 循环、安全和面试手册 |
+| `stages/phase3_personal_agent/app/agent.py` | Agent 消息历史、工具回传和最大步骤控制 |
+| `stages/phase3_personal_agent/app/registry.py` | 工具 Schema、Pydantic 参数校验与执行 |
 
 ## 环境与运行
 
@@ -50,6 +57,13 @@
 
 完整依赖也可以使用：`.\\agent_env\\Scripts\\python.exe -m pip install -r stages\\phase2_resume_analysis\\requirements.txt`。
 
+第三阶段安装和运行：
+
+```powershell
+.\agent_env\Scripts\python.exe -m pip install -r stages\phase3_personal_agent\requirements.txt
+.\agent_env\Scripts\python.exe -m stages.phase3_personal_agent.examples.run_agent
+```
+
 真实模型练习使用 DeepSeek 的 OpenAI 兼容 API。客户端默认地址为 `https://api.deepseek.com`，默认模型为 `deepseek-v4-pro`，并自动读取电脑环境变量 `DEEPSEEK_API_KEY`；可通过 `LLM_BASE_URL`、`LLM_MODEL` 和 `LLM_USE_RESPONSE_FORMAT` 覆盖。不要把密钥写入仓库、日志或记忆文件。`.env.example` 只包含占位值。
 
 ## 学习约定
@@ -59,6 +73,8 @@
 3. 网络调用必须有 timeout；只对临时错误做有限重试。
 4. 每节课保留可运行代码、测试、README 更新和简短复盘。
 5. 评估不仅记录平均分，还要保存 JSON 失败、字段缺失、幻觉、超时和供应商错误等失败样例。
+6. 模型只能提出工具调用；工具名、参数、权限和副作用必须由 Python 程序控制。
+7. Agent 必须有最大步骤和重复调用保护，有副作用工具还需要考虑幂等与人工确认。
 
 ## 跨设备恢复步骤
 
@@ -68,9 +84,12 @@ cd agent-learning
 Get-Content docs\project-memory.md
 Get-Content stages\phase2_resume_analysis\lesson.md
 Get-Content stages\phase2_resume_analysis\docs\phase2-core-knowledge-guide.md
+Get-Content stages\phase3_personal_agent\lesson.md
+Get-Content stages\phase3_personal_agent\docs\phase3-core-knowledge-guide.md
 python -m venv agent_env
-.\agent_env\Scripts\python.exe -m pip install -r stages\phase2_resume_analysis\requirements.txt
-.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.exercises.phase2_exercise
+.\agent_env\Scripts\python.exe -m pip install -r stages\phase3_personal_agent\requirements.txt
+.\agent_env\Scripts\python.exe -m pytest -q
+.\agent_env\Scripts\python.exe -m stages.phase3_personal_agent.examples.run_agent
 ```
 
-虚拟环境不会提交到仓库，因此每台新设备都要单独创建。不要复制或提交本地 API Key。
+虚拟环境不会提交到仓库，因此每台新设备都要单独创建。不要复制或提交本地 API Key。第三阶段的 `data/todos.json` 是本地运行数据，也不会跨设备同步；需要共享的学习记录应写入 Markdown 文档。
