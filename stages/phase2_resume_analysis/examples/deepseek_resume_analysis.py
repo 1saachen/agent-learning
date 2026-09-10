@@ -1,10 +1,10 @@
-"""真实 DeepSeek 调用：python -m examples.deepseek_resume_analysis"""
+"""真实 DeepSeek 调用示例。"""
 
 import asyncio
 
-from phase2.client import OpenAIModelCaller
-from phase2.prompts import SYSTEM_PROMPT
-from phase2.service import AnalysisService
+from stages.phase2_resume_analysis.app.client import OpenAIModelCaller
+from stages.phase2_resume_analysis.app.prompts import SYSTEM_PROMPT
+from stages.phase2_resume_analysis.app.service import AnalysisService
 
 
 async def main() -> None:

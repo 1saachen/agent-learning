@@ -12,15 +12,15 @@
 
 ### Task 1: Create package contracts and prompts
 
-**Files:** `phase2/contracts.py`, `phase2/prompts.py`, `tests/test_phase2_contracts.py`, `tests/test_phase2_prompts.py`
+**Files:** `app/contracts.py`, `app/prompts.py`, `tests/test_phase2_contracts.py`, `tests/test_phase2_prompts.py`
 
 - [ ] Write tests for valid/invalid `ResumeAnalysis`, request bounds, system prompt rules, and user data placement.
 - [ ] Implement Pydantic models and versioned prompt functions.
-- [ ] Run `python -m pytest tests/test_phase2_contracts.py tests/test_phase2_prompts.py -q`.
+- [ ] Run the contract and Prompt tests from the repository root.
 
 ### Task 2: Add injectable model clients and retry policy
 
-**Files:** `phase2/client.py`, `tests/test_phase2_client.py`
+**Files:** `app/client.py`, `tests/test_phase2_client.py`
 
 - [ ] Write tests for success, retryable timeout, non-retryable error, and maximum attempts.
 - [ ] Implement `ModelCaller` protocol, deterministic fake, optional OpenAI adapter, and bounded retry helper.
@@ -28,7 +28,7 @@
 
 ### Task 3: Add analysis service and diagnostics
 
-**Files:** `phase2/service.py`, `tests/test_phase2_service.py`
+**Files:** `app/service.py`, `tests/test_phase2_service.py`
 
 - [ ] Write tests for successful analysis, malformed JSON diagnostics, and provider errors.
 - [ ] Implement service orchestration and safe diagnostic previews.
@@ -36,7 +36,7 @@
 
 ### Task 4: Add FastAPI transport
 
-**Files:** `phase2/api.py`, `tests/test_phase2_api.py`
+**Files:** `app/api.py`, `tests/test_phase2_api.py`
 
 - [ ] Write TestClient tests for success, validation 422, parse failure 502, and timeout 504.
 - [ ] Implement dependency-injected app factory and error mapping.
@@ -44,7 +44,7 @@
 
 ### Task 5: Document and verify
 
-**Files:** `README.md`, `lessons/phase-2-llm-structured-apps.md`
+**Files:** `README.md`, `lesson.md`
 
 - [ ] Document file map and commands.
 - [ ] Run full test suite, compile check, and diff check.

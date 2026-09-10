@@ -1,9 +1,9 @@
-"""离线运行：python -m examples.mock_resume_analysis"""
+"""离线运行的完整链路示例。"""
 
 import asyncio
 
-from phase2.client import FakeModelCaller
-from phase2.service import AnalysisService
+from stages.phase2_resume_analysis.app.client import FakeModelCaller
+from stages.phase2_resume_analysis.app.service import AnalysisService
 
 
 MOCK_RESPONSE = (

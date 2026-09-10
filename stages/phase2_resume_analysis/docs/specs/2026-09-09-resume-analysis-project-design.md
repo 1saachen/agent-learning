@@ -12,12 +12,12 @@
 
 ## 模块边界
 
-- `phase2/contracts.py`：只定义请求和响应数据结构。
-- `phase2/prompts.py`：只定义 Prompt 版本和输入拼接规则。
-- `phase2/client.py`：只负责模型调用和有限重试，不解析业务 JSON。
-- `phase2/service.py`：编排 Prompt、模型调用、解析和诊断。
-- `phase2/api.py`：把 HTTP 请求映射到服务层，并把内部错误转换为 502/504。
-- `phase2/evaluation.py`：读取 JSONL 样例并计算离线技能命中指标。
+- `app/contracts.py`：只定义请求和响应数据结构。
+- `app/prompts.py`：只定义 Prompt 版本和输入拼接规则。
+- `app/client.py`：只负责模型调用和有限重试，不解析业务 JSON。
+- `app/service.py`：编排 Prompt、模型调用、解析和诊断。
+- `app/api.py`：把 HTTP 请求映射到服务层，并把内部错误转换为 502/504。
+- `app/evaluation.py`：读取 JSONL 样例并计算离线技能命中指标。
 - `examples/`：展示 Mock 和真实客户端的调用方式，不包含密钥。
 
 ## 数据流与错误处理

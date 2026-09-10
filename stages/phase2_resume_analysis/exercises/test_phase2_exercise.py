@@ -1,6 +1,10 @@
+import os
+import subprocess
+import sys
+
 import pytest
 
-from phase2_exercise import mock_model, parse_analysis
+from stages.phase2_resume_analysis.exercises.phase2_exercise import mock_model, parse_analysis
 
 
 def test_mock_model_returns_valid_analysis():
@@ -8,6 +12,24 @@ def test_mock_model_returns_valid_analysis():
 
     assert result.match_score == 0.78
     assert "Python" in result.matched_skills
+
+
+def test_exercise_can_be_imported_without_api_key():
+    env = os.environ.copy()
+    env.pop("DEEPSEEK_API_KEY", None)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import stages.phase2_resume_analysis.exercises.phase2_exercise",
+        ],
+        cwd=os.getcwd(),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 @pytest.mark.parametrize(

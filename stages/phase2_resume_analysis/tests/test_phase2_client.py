@@ -1,7 +1,12 @@
 import asyncio
 import pytest
 
-from phase2.client import FakeModelCaller, ModelCallError, OpenAIModelCaller, call_with_retry
+from stages.phase2_resume_analysis.app.client import (
+    FakeModelCaller,
+    ModelCallError,
+    OpenAIModelCaller,
+    call_with_retry,
+)
 
 
 def test_fake_caller_returns_configured_json():

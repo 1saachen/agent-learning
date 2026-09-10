@@ -1,4 +1,4 @@
-from phase2.prompts import SYSTEM_PROMPT, build_analysis_prompt
+from stages.phase2_resume_analysis.app.prompts import SYSTEM_PROMPT, build_analysis_prompt
 
 
 def test_prompt_places_input_in_user_content_only():

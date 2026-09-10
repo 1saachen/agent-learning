@@ -12,7 +12,7 @@
 
 ### Task 1: Add evaluation metrics
 
-**Files:** `phase2/evaluation.py`, `eval_cases.jsonl`, `tests/test_phase2_evaluation.py`
+**Files:** `app/evaluation.py`, `data/eval_cases.jsonl`, `tests/test_phase2_evaluation.py`
 
 - [ ] Test JSONL loading, exact skill-hit calculation, and aggregate metrics.
 - [ ] Implement deterministic evaluation helpers that accept an injected analyzer.
@@ -28,7 +28,7 @@
 
 ### Task 3: Complete project documentation
 
-**Files:** `README.md`, `docs/project-memory.md`, `lessons/phase-2-llm-structured-apps.md`
+**Files:** `README.md`, `lesson.md`, repository `docs/project-memory.md`
 
 - [ ] Document project flow, file map, API request, example commands, evaluation command, and expected error codes.
 - [ ] Keep API keys out of all tracked files.

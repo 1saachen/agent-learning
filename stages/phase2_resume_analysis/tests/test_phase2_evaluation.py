@@ -1,8 +1,8 @@
 import asyncio
 import json
 
-from phase2.contracts import ResumeAnalysis
-from phase2.evaluation import evaluate_cases, load_cases, skill_hit_rate
+from stages.phase2_resume_analysis.app.contracts import ResumeAnalysis
+from stages.phase2_resume_analysis.app.evaluation import evaluate_cases, load_cases, skill_hit_rate
 
 
 def test_load_cases_reads_jsonl(tmp_path):

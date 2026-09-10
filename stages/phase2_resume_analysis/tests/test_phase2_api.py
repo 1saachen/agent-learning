@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from phase2.api import create_app
-from phase2.client import FakeModelCaller, ModelCallError
+from stages.phase2_resume_analysis.app.api import create_app
+from stages.phase2_resume_analysis.app.client import FakeModelCaller, ModelCallError
 
 
 VALID = '{"candidate_summary":"backend","matched_skills":["Python"],"missing_skills":[],' \

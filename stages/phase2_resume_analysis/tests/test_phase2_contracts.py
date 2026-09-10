@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from phase2.contracts import ResumeAnalysis, ResumeRequest
+from stages.phase2_resume_analysis.app.contracts import ResumeAnalysis, ResumeRequest
 
 
 def test_resume_analysis_accepts_valid_data():

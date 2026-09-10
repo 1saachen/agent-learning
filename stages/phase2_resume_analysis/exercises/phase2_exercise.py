@@ -5,7 +5,7 @@ import os
 from openai import AsyncOpenAI
 import asyncio
 from pydantic import BaseModel, Field, ValidationError
-from phase2.prompts import SYSTEM_PROMPT
+from stages.phase2_resume_analysis.app.prompts import SYSTEM_PROMPT
 
 
 class ResumeAnalysis(BaseModel):
@@ -39,13 +39,12 @@ def mock_model(_: str) -> str:
         '"interview_questions":["如何设计异步 API？"]}'
     )
 
-client = AsyncOpenAI(
-    api_key=os.environ["DEEPSEEK_API_KEY"],
-    base_url="https://api.deepseek.com",
-)
-
 async def call_model(user_prompt: str) -> str:
     """调用 DeepSeek API 获取模型输出。"""
+    client = AsyncOpenAI(
+        api_key=os.environ["DEEPSEEK_API_KEY"],
+        base_url="https://api.deepseek.com",
+    )
     response = await client.chat.completions.create(
         model="deepseek-v4-pro",
         messages=[

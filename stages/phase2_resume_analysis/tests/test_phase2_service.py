@@ -1,8 +1,8 @@
 import asyncio
 import pytest
 
-from phase2.client import FakeModelCaller, ModelCallError
-from phase2.service import AnalysisService, ParseFailure
+from stages.phase2_resume_analysis.app.client import FakeModelCaller, ModelCallError
+from stages.phase2_resume_analysis.app.service import AnalysisService, ParseFailure
 
 
 VALID = '{"candidate_summary":"backend","matched_skills":["Python"],"missing_skills":[],' \

@@ -74,7 +74,7 @@ assert result.match_score == 0.78
 
 ### 今日任务
 
-1. 在新文件 `phase2_exercise.py` 中实现 `ResumeAnalysis`、`parse_analysis` 和 `mock_model`。
+1. 在 `exercises/phase2_exercise.py` 中实现 `ResumeAnalysis`、`parse_analysis` 和 `mock_model`。
 2. 增加三个失败样例：非法 JSON、缺少 `match_score`、分数大于 1；分别断言抛出 `ValueError`。
 3. 把 `ResumeAnalysis.model_json_schema()` 打印出来，观察它如何描述字段约束。
 4. 用 pytest 运行测试，并把失败样例写进 README 或学习日志。
@@ -97,7 +97,7 @@ assert result.match_score == 0.78
 ### Prompt 模板
 
 ```python
-from phase2.prompts import SYSTEM_PROMPT
+from stages.phase2_resume_analysis.app.prompts import SYSTEM_PROMPT
 
 # SYSTEM_PROMPT 已包含完整字段契约、拒绝替代字段的规则和 Few-shot 示例。
 
@@ -222,7 +222,7 @@ def test_score_boundary_is_valid():
 ### 练习
 
 1. 为 `parse_analysis` 写成功、边界和失败参数化测试。
-2. 建立 `eval_cases.jsonl`，每行包含简历、职位描述和期望关键技能。
+2. 扩展 `data/eval_cases.jsonl`，每行包含简历、职位描述和期望关键技能。
 3. 编写脚本统计：解析成功率、技能命中率、平均延迟和每次请求成本。
 4. 比较 temperature 为 0 和 0.7 的结果差异，记录结论。
 
@@ -267,20 +267,20 @@ async def analyze(request: ResumeRequest):
 先从不联网的 Mock 开始：
 
 ```powershell
-.\\agent_env\\Scripts\\python.exe -m examples.mock_resume_analysis
+.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.examples.mock_resume_analysis
 ```
 
 然后直接运行真实 DeepSeek 示例。程序会读取电脑环境变量 `DEEPSEEK_API_KEY`：
 
 ```powershell
-.\\agent_env\\Scripts\\python.exe -m examples.deepseek_resume_analysis
+.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.examples.deepseek_resume_analysis
 ```
 
 最后启动 API 并在 `/docs` 中调用，或运行 5 条评估样例：
 
 ```powershell
-.\\agent_env\\Scripts\\python.exe -m phase2.run_api
-.\\agent_env\\Scripts\\python.exe -m examples.evaluate_deepseek
+.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.app.run_api
+.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.examples.evaluate_deepseek
 ```
 
 评估输出包含总样例数、结构化成功数、失败数、技能命中率和平均匹配分。评估只用于学习和比较，5 条样例不足以代表生产质量。
@@ -288,19 +288,27 @@ async def analyze(request: ResumeRequest):
 ### 代码目录
 
 ```text
-phase2/
-├── contracts.py   # Pydantic 请求/响应契约
-├── prompts.py     # Prompt 版本和构造
-├── client.py      # Fake/ OpenAI 客户端与有限重试
-├── service.py     # 业务编排和解析诊断
-├── evaluation.py  # JSONL 评估和技能命中率
-├── api.py         # FastAPI app factory
-└── run_api.py     # 本地真实 API 启动入口
-tests/
-└── test_phase2_*.py  # 离线测试
+stages/phase2_resume_analysis/
+├── README.md           # 阶段说明和运行命令
+├── lesson.md           # 本阶段完整讲义
+├── requirements.txt    # 本阶段依赖
+├── .env.example        # DeepSeek 配置示例，不包含真实密钥
+├── app/
+│   ├── contracts.py    # Pydantic 请求/响应契约
+│   ├── prompts.py      # Prompt 版本和构造
+│   ├── client.py       # Fake/OpenAI 客户端与有限重试
+│   ├── service.py      # 业务编排和解析诊断
+│   ├── evaluation.py   # JSONL 评估和技能命中率
+│   ├── api.py          # FastAPI app factory
+│   └── run_api.py      # 本地真实 API 启动入口
+├── examples/           # Mock、真实 DeepSeek 和批量评估入口
+├── exercises/          # 课程练习及对应测试
+├── tests/              # 阶段项目离线测试
+├── data/               # JSONL 评估样例
+└── docs/               # 阶段设计文档和实现计划
 ```
 
-运行离线测试：`.\\agent_env\\Scripts\\python.exe -m pytest tests -q`。启动真实 API：`.\\agent_env\\Scripts\\python.exe -m phase2.run_api`。两条命令都应在仓库根目录执行。
+运行离线测试：`.\agent_env\Scripts\python.exe -m pytest stages\phase2_resume_analysis -q`。启动真实 API：`.\agent_env\Scripts\python.exe -m stages.phase2_resume_analysis.app.run_api`。两条命令都应在仓库根目录执行。
 
 ### 最小功能
 
