@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from stages.phase3_personal_agent.app.agent import AgentRunner
 from stages.phase3_personal_agent.app.client import ModelCallError
+from stages.phase3_personal_agent.app.conversation import Conversation
 from stages.phase3_personal_agent.app.contracts import (
     AssistantDecision,
     CreateTodoArgs,
@@ -208,3 +209,95 @@ def test_agent_preserves_trace_when_model_fails():
     assert result.stop_reason == "model_error"
     assert len(result.trace) == 1
     assert "模型调用失败" in result.answer
+
+
+def test_conversation_reuses_complete_answer_history_across_runs():
+    model = SequenceModel(
+        [
+            AssistantDecision(content="第一轮回答"),
+            AssistantDecision(content="第二轮回答"),
+        ]
+    )
+    conversation = Conversation()
+    runner = AgentRunner(model, _registry([]))
+
+    first = asyncio.run(runner.run("第一轮问题", conversation=conversation))
+    second = asyncio.run(runner.run("第二轮问题", conversation=conversation))
+
+    assert first.answer == "第一轮回答"
+    assert second.answer == "第二轮回答"
+    assert model.message_snapshots[1] == [
+        {"role": "system", "content": conversation.messages[0]["content"]},
+        {"role": "user", "content": "第一轮问题"},
+        {"role": "assistant", "content": "第一轮回答"},
+        {"role": "user", "content": "第二轮问题"},
+    ]
+    assert conversation.messages[-1] == {"role": "assistant", "content": "第二轮回答"}
+
+
+def test_conversation_keeps_tool_call_and_tool_result_for_next_run():
+    model = SequenceModel(
+        [
+            AssistantDecision(
+                tool_calls=[ToolCall(id="weather-1", name="get_weather", arguments='{"city":"上海"}')]
+            ),
+            AssistantDecision(content="第一轮天气已查询"),
+            AssistantDecision(content="第二轮使用了历史天气"),
+        ]
+    )
+    conversation = Conversation()
+    runner = AgentRunner(model, _registry([]))
+
+    asyncio.run(runner.run("查询上海天气", conversation=conversation))
+    asyncio.run(runner.run("根据刚才的天气回答", conversation=conversation))
+
+    second_request = model.message_snapshots[2]
+    assert [message["role"] for message in second_request] == [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "assistant",
+        "user",
+    ]
+    assert second_request[2]["tool_calls"][0]["id"] == "weather-1"
+    assert second_request[3]["tool_call_id"] == "weather-1"
+    assert second_request[4]["content"] == "第一轮天气已查询"
+
+
+def test_conversations_are_isolated():
+    model = SequenceModel(
+        [
+            AssistantDecision(content="会话 A"),
+            AssistantDecision(content="会话 B"),
+        ]
+    )
+    runner = AgentRunner(model, _registry([]))
+    conversation_a = Conversation()
+    conversation_b = Conversation()
+
+    asyncio.run(runner.run("问题 A", conversation=conversation_a))
+    asyncio.run(runner.run("问题 B", conversation=conversation_b))
+
+    assert [message["content"] for message in model.message_snapshots[1]] == [
+        conversation_b.messages[0]["content"],
+        "问题 B",
+    ]
+
+
+def test_run_without_conversation_stays_stateless_between_calls():
+    model = SequenceModel(
+        [
+            AssistantDecision(content="回答 A"),
+            AssistantDecision(content="回答 B"),
+        ]
+    )
+    runner = AgentRunner(model, _registry([]))
+
+    asyncio.run(runner.run("问题 A"))
+    asyncio.run(runner.run("问题 B"))
+
+    assert [message["content"] for message in model.message_snapshots[1]] == [
+        model.message_snapshots[1][0]["content"],
+        "问题 B",
+    ]

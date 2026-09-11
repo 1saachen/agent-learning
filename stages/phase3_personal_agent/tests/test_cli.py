@@ -1,3 +1,5 @@
+import asyncio
+
 from stages.phase3_personal_agent.app.agent import AgentRunner
 from stages.phase3_personal_agent.app.contracts import TraceEntry
 from stages.phase3_personal_agent.examples import run_agent
@@ -38,3 +40,23 @@ def test_print_trace_shows_execution_without_credentials(capsys):
     assert "成功" in output
     assert "12.34 ms" in output
     assert "private-test-key" not in output
+
+
+def test_interactive_cli_reuses_one_conversation(monkeypatch):
+    runner = object()
+    inputs = iter(["第一轮", "第二轮", "exit"])
+    calls = []
+
+    monkeypatch.setattr(run_agent, "build_runner", lambda: runner)
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    async def record_run(actual_runner, user_input, *, conversation=None):
+        calls.append((actual_runner, user_input, conversation))
+
+    monkeypatch.setattr(run_agent, "_run_once", record_run)
+
+    asyncio.run(run_agent.main())
+
+    assert [call[1] for call in calls] == ["第一轮", "第二轮"]
+    assert calls[0][0] is runner
+    assert calls[0][2] is calls[1][2]

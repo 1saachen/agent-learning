@@ -19,6 +19,7 @@ phase3_personal_agent/
 ├── app/
 │   ├── contracts.py     # 参数、模型决策、工具结果和轨迹契约
 │   ├── client.py        # DeepSeek Tool Calling 客户端
+│   ├── conversation.py   # 当前进程内的完整会话消息历史
 │   ├── registry.py      # 工具 Schema、参数校验和统一执行
 │   ├── agent.py         # Agent 控制循环
 │   ├── prompts.py       # System Prompt
@@ -111,9 +112,21 @@ Open-Meteo 天气接口不需要 API Key，但运行时需要能访问互联网�
 6. 对照 `tests/test_agent.py` 手动画消息历史；
 7. 使用 [核心知识手册](docs/phase3-core-knowledge-guide.md) 自测和准备面试。
 
+## 上下文范围
+
+当前版本已经支持当前进程内的多轮会话。交互模式启动时创建一个 `Conversation`，每次输入都复用它，因此以下内容会完整保留：
+
+- system 消息；
+- 每轮 user 消息；
+- assistant 最终回答；
+- assistant 提出的 `tool_calls`；
+- 每个带 `tool_call_id` 的 tool 结果。
+
+例如先问“北京现在多少度”，再问“那需要带水吗”，第二轮模型可以看到第一轮的天气结果。关闭程序后历史会消失；`--prompt` 单次模式和不传 `conversation` 的 `run()` 仍然是独立任务。
+
 ## 已知限制
 
-- 每次 `run()` 都是独立会话，没有长期记忆；
+- 会话历史只保存在当前进程内，没有磁盘持久化、上下文裁剪或摘要；
 - 笔记搜索是简单文本匹配，不是 RAG；
 - 待办文件没有并发写锁，不适合多进程服务；
 - 天气只取 geocoding 的第一个城市结果，重名城市可能需要更具体的输入；

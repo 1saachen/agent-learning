@@ -16,7 +16,8 @@
 - 已跑通 DeepSeek 简历分析项目，并完成项目代码的基础阅读和理解。
 - 阶段三个人研究助手位于 `stages/phase3_personal_agent/`，使用原生 DeepSeek Tool Calling。
 - 阶段三已实现本地笔记搜索、本地待办写入、Open-Meteo 实时天气、工具参数校验、重复调用保护、最多 5 步的 Agent 循环和 trace。
-- 下一步：运行真实单工具与多步条件任务，按 `lesson.md` 阅读代码，再完成核心知识手册中的练习和验收。
+- 阶段三交互 CLI 已支持当前进程内的多轮上下文，通过 `Conversation` 完整保留 system、user、assistant tool calls、tool results 和 assistant final answer；关闭程序后历史消失。
+- 下一步：运行真实多轮对话，阅读 `conversation.py` 和 `agent.py`，再学习上下文窗口、token 预算、历史裁剪、摘要与持久化。
 
 ## 重要文件
 
@@ -36,6 +37,7 @@
 | `stages/phase3_personal_agent/README.md` | 第三阶段安装、运行和目录说明 |
 | `stages/phase3_personal_agent/lesson.md` | 第三阶段按代码顺序学习的讲义 |
 | `stages/phase3_personal_agent/docs/phase3-core-knowledge-guide.md` | Tool Calling、Agent 循环、安全和面试手册 |
+| `stages/phase3_personal_agent/app/conversation.py` | 进程内完整多轮消息历史 |
 | `stages/phase3_personal_agent/app/agent.py` | Agent 消息历史、工具回传和最大步骤控制 |
 | `stages/phase3_personal_agent/app/registry.py` | 工具 Schema、Pydantic 参数校验与执行 |
 
@@ -75,6 +77,7 @@
 5. 评估不仅记录平均分，还要保存 JSON 失败、字段缺失、幻觉、超时和供应商错误等失败样例。
 6. 模型只能提出工具调用；工具名、参数、权限和副作用必须由 Python 程序控制。
 7. Agent 必须有最大步骤和重复调用保护，有副作用工具还需要考虑幂等与人工确认。
+8. 会话上下文和长期记忆不是同一概念；当前 `Conversation` 只提供进程内短期上下文，暂不持久化或裁剪。
 
 ## 跨设备恢复步骤
 

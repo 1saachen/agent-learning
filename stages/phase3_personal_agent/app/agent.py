@@ -3,6 +3,7 @@ from time import perf_counter
 from typing import Any
 
 from .client import ChatModel, ModelCallError
+from .conversation import Conversation
 from .contracts import (
     AgentRunResult,
     AssistantDecision,
@@ -28,17 +29,24 @@ class AgentRunner:
         self.registry = registry
         self.max_steps = max_steps
 
-    async def run(self, user_input: str) -> AgentRunResult:
-        messages: list[dict[str, Any]] = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_input},
-        ]
+    async def run(
+        self,
+        user_input: str,
+        *,
+        conversation: Conversation | None = None,
+    ) -> AgentRunResult:
+        if conversation is None:
+            conversation = Conversation(SYSTEM_PROMPT)
+        conversation.add_user_message(user_input)
         trace: list[TraceEntry] = []
         seen_calls: set[tuple[str, str]] = set()
 
         for step in range(1, self.max_steps + 1):
             try:
-                decision = await self.model.complete(messages, self.registry.definitions())
+                decision = await self.model.complete(
+                    conversation.messages,
+                    self.registry.definitions(),
+                )
             except ModelCallError:
                 return AgentRunResult(
                     answer="模型调用失败，请稍后重试。",
@@ -47,7 +55,7 @@ class AgentRunner:
                     trace=trace,
                 )
 
-            messages.append(_assistant_message(decision))
+            conversation.add_assistant_message(_assistant_message(decision))
             if not decision.tool_calls:
                 return AgentRunResult(
                     answer=decision.content or "模型没有返回可用回答。",
@@ -94,13 +102,10 @@ class AgentRunner:
                         duration_ms=duration_ms,
                     )
                 )
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": call.id,
-                        "name": call.name,
-                        "content": result.model_dump_json(),
-                    }
+                conversation.add_tool_message(
+                    tool_call_id=call.id,
+                    name=call.name,
+                    content=result.model_dump_json(),
                 )
 
         return AgentRunResult(
